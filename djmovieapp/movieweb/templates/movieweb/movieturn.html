@@ -1,0 +1,29 @@
+{% load crispy_forms_tags %}
+<html>
+    {% block body %}
+    <body>
+    {% if user.is_authenticated %}
+        <h1>Galoob's Movie Game</h1>
+        {{ user.username }} : {{ game_id }}
+
+        <h3>Score: {{ score }}</h3>
+
+        <h3>Now a movie that {{ entity }} has acted in:</h3>
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Play</button>
+        </form>
+        <h2>{{ name }}</h2>
+        <h3>{{ actor }}</h3>
+    {% else %}
+        <p>You are not logged in.</p>
+        <a href="{% url 'login' %}">Log In</a>
+    
+        <p>If you do not have an account.</p>
+        <a href="{% url 'signup' %}">Sign Up</a>
+    {% endif %}
+    </body>
+    {% endblock %}
+</html>
