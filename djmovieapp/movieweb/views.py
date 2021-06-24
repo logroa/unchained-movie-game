@@ -2,7 +2,7 @@
 from django.http import HttpResponseRedirect, Http404
 from django.views.generic.edit import FormView, View, DeleteView
 from .forms import ActorForm, MovieForm, RoleForm
-from .models import Actor, Movie, Role, Scoreboard, Turn
+from .models import Actor, Movie, Role, Scoreboard, Turn, playerRole
 
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
@@ -25,7 +25,7 @@ import random
 import requests, json
 from datetime import datetime
 
-
+#user signup / signin
 def signup(request):
     if request.method == 'POST':
         form = SignupForm(request.POST)
@@ -68,11 +68,13 @@ def activate(request, uidb64, token):
     else:
         return HttpResponse('Activation link is invalid!')
 
+#misc
 def randMov():
    firstmovies = Movie.objects.raw("SELECT id, title from movieweb_movie ORDER BY count DESC LIMIT 5")
    index = random.randint(0, 4)
    return firstmovies[index]
 
+#database helpers
 def scoreBoarder(id):
     sb = Scoreboard.objects.get(id=id)
     sb.incScore()
@@ -83,27 +85,26 @@ def turner(request, game_id, movieOr, entity, first, last, order):
               entity = entity, first = first, last = last, order = order)
     tn.save()
 
+def actorAdd(request, actor):
+    a = Actor(name=actor, discovered_by=request.user)
+    a.save()
+
+def movieAdd(request, movie):
+    m = Movie(title=movie, discovered_by=request.user)
+    m.save()
+
+def roleHandle(request, actor, movie):
+    try:
+        rol = Role.objects.get(actor=actor, movie=movie)
+        rol.refRole()
+        rol.save()
+    except:
+        r = Role(actor=actor, movie=movie, discovered_by=request.user)
+        r.save()
+
+#end of game page
 def gameOver(request, game_id, entity, score, template_name = 'movieweb/gameover.html'):
     return render(request, template_name, {"entity": entity, "score": score, "game_id": game_id})
-
-
-def movieTurn(request, game_id, entity, score, template_name = 'movieweb/movieturn.html'):
-
-    if request.method == 'POST':
-        form = Movie(request.POST)
-        if form.is_valid():
-            title = form.cleaned_data['title'].lower()
-            mov = getActor(request, title)
-            form = MovieForm()
-            #if act != " ":
-            #    score += 1  
-
-        args = {'form': form, 'title': title, 'entity': mov, 'score': score}
-    
-        return  render(request, template_name, args)
-    else:
-        form = MovieForm()
-        return render(request, template_name, {'form': form, 'entity': entity, 'score': score, 'game_id': game_id})    
 
 #validate actor at beginning of game
 def validateActor(actor):
@@ -124,8 +125,8 @@ def validateActor(actor):
     else:
         return True
 
-def actorApi(actor, movie):
-
+#confirm movie and actor is in it
+def roleApi(actor, movie):
     key = "582466104084889c8affefe2494c9278"
     token = '''eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1ODI0NjYxMD
                         QwODQ4ODljOGFmZmVmZTI0OTRjOTI3OCIsInN1YiI6I
@@ -150,10 +151,11 @@ def actorApi(actor, movie):
             return True
     return False
 
-def actorAdd(request, actor):
-    a = Actor(name=actor, discovered_by=request.user)
-    a.save()
+#check if entity has been played this game
+def noRepeats(request, entity, movieOr):
+    pass
 
+#actor turn helper
 def getActor(request, actor, movie):
     try:
         act = Actor.objects.get(name=actor)
@@ -161,12 +163,27 @@ def getActor(request, actor, movie):
         act.save()
         return True
     except:
-        if actorApi(actor, movie):
+        if roleApi(actor, movie):
             actorAdd(request, actor)
             return True
         else:
             return False
 
+#movie turn helper
+def getMovie(request, actor, movie):
+    try:
+        mov = Movie.objects.get(title=movie)
+        mov.refAct()
+        mov.save()
+        return True
+    except:
+        if roleApi(actor, movie):
+            movieAdd(request, movie)
+            return True
+        else:
+            return False
+
+#actor helper for beginning of the game
 def actorStart(request, actor):
     try:
         act = Actor.objects.get(name=actor)
@@ -180,6 +197,31 @@ def actorStart(request, actor):
         else:
             return False
 
+#movie turn
+def movieTurn(request, game_id, entity, score, template_name = 'movieweb/movieturn.html'):
+
+    if request.method == 'POST':
+        form = Movie(request.POST)
+        if form.is_valid():
+
+            title = form.cleaned_data['title'].lower()
+            form = MovieForm()
+
+            if getMovie(request, entity, title):
+                score += 1
+           
+                scoreBoarder(game_id)
+                turner(request, game_id, True, title, False, False, score)
+                roleHandle(request, Actor.objects.get(name=entity), Movie.objects.get(title=title))
+
+        args = {'form': form, 'title': title, 'entity': title, 'score': score}
+    
+        return  render(request, template_name, args)
+    else:
+        form = MovieForm()
+        return render(request, template_name, {'form': form, 'entity': entity, 'score': score, 'game_id': game_id})    
+
+#start the game w actor
 def GameStarter(request, template_name = 'movieweb/index.html'):
 
     score = 0

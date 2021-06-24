@@ -41,6 +41,9 @@ class Scoreboard(models.Model):
     score = models.IntegerField(default = 0)
     date = models.DateTimeField(default=datetime.now(), blank=True, null=True)
 
+    def __str__(self):
+        return self.user.username + ": " + str(self.score) + ", " + str(self.date)
+
     def incScore(self):
         self.score += 1
 
@@ -53,10 +56,29 @@ class Turn(models.Model):
     last = models.BooleanField(default = False)
     order = models.IntegerField(default = 1)
 
+    def __str__(self):
+        ans = self.user.username + ": "
+        try:
+            m = Movie.objects.get(id = self.entity).title
+            a = Actor.objects.get(id = self.entity).name
+        except:
+            ans += "WRONG"
+            return ans
+        else:
+            if self.movie:
+                ans += m + " " + str(1)
+            else:
+                ans += a + " " + str(0)
+            ans += ", " + str(self.game_id) + ": " + str(self.order)
+            return ans
+
 class playerRole(models.Model):
     user = models.ForeignKey(User, default=1, blank=True, null=True, on_delete=models.CASCADE)
     role_id = models.IntegerField(default = 0)
     count = models.IntegerField(default = 1)
+
+    def __str__(self):
+        return self.user.username + ": " + Role.objects.get(id = self.role_id) + ", " + str(self.count)
 
     def refConnect(self):
         self.count += 1
