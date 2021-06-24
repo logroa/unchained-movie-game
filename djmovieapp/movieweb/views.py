@@ -108,12 +108,8 @@ def gameOver(request, game_id, entity, score, template_name = 'movieweb/gameover
 
 #validate actor at beginning of game
 def validateActor(actor):
-    key = "582466104084889c8affefe2494c9278"
-    token = '''eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1ODI0NjYxMD
-                        QwODQ4ODljOGFmZmVmZTI0OTRjOTI3OCIsInN1YiI6I
-                        jYwYjdmMWQ2NjkwNWZiMDA2ZjYyMDYyMSIsInNjb3Bl
-                        cyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.44pR
-                        dm5gZVVr5ZyJ9P8yPGdhtFEM79IeKGuwKYqNbDc'''
+    key = "xxxxxxxxxxxxxxxxxxxx"
+    token = '''xxxxxxxxxxxxxxxxxxxx'''
     url = "https://api.themoviedb.org/3/"
 
     link = url + "search/person?api_key=" + key + "&query=" + actor
