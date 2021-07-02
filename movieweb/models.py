@@ -35,6 +35,8 @@ class Role(models.Model):
 
     def refRole(self):
         self.count += 1
+        self.actor.refAct()
+        self.movie.refMov()
 
 class Scoreboard(models.Model):
     user = models.ForeignKey(User, default=1, blank=True, null=True, on_delete=models.CASCADE)

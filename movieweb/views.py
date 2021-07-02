@@ -163,28 +163,40 @@ def noRepeats(game_id, entity, movieOr):
 #actor turn helper
 def getActor(request, actor, movie):
     try:
-        act = Role.objects.get(actor = Actor.objects.get(name = actor).id, movie=Movie.objects.get(title = movie).id)
-        act.refRole()
-        act.save()
+        rol = Role.objects.get(actor = Actor.objects.get(name = actor).id, movie=Movie.objects.get(title = movie).id)
+        rol.refRole()
+        rol.save()
         return True
     except:
         if roleApi(actor, movie):
-            actorAdd(request, actor)
-            return True
+            try:
+                act = Actor.objects.get(name = actor)
+                act.refAct()
+                act.save()
+                return True
+            except:
+                actorAdd(request, actor)
+                return True
         else:
             return False
 
 #movie turn helper
 def getMovie(request, actor, movie):
     try:
-        mov = Role.objects.get(movie=Movie.objects.get(title = movie).id, actor = Actor.objects.get(name = actor).id)
-        mov.refRole()
-        mov.save()
+        rol = Role.objects.get(movie=Movie.objects.get(title = movie).id, actor = Actor.objects.get(name = actor).id)
+        rol.refRole()
+        rol.save()
         return True
     except:
         if roleApi(actor, movie):
-            movieAdd(request, movie)
-            return True
+            try:
+                mov = Movie.objects.get(title = movie)
+                mov.refAct()
+                mov.save()
+                return True
+            except:
+                movieAdd(request, movie)
+                return True
         else:
             return False
 
@@ -225,7 +237,7 @@ def actorTurn(request, game_id, entity, score, template_name= 'movieweb/actortur
                 return redirect("gameOver", game_id = game_id, entity = name, score = score)
     else:
         form = ActorForm()
-        return render(request, template_name, {'form': form, 'entity': entity, 'score': score, 'game_id': game_id})   
+    return render(request, template_name, {'form': form, 'entity': entity, 'score': score, 'game_id': game_id})   
 
 #movie turn
 def movieTurn(request, game_id, entity, score, template_name = 'movieweb/movieturn.html'):
@@ -250,7 +262,7 @@ def movieTurn(request, game_id, entity, score, template_name = 'movieweb/movietu
                 return redirect("gameOver", game_id = game_id, entity = title, score = score)
     else:
         form = MovieForm()
-        return render(request, template_name, {'form': form, 'entity': entity, 'score': score, 'game_id': game_id})    
+    return render(request, template_name, {'form': form, 'entity': entity, 'score': score, 'game_id': game_id})    
 
 #start the game w actor
 def GameStarter(request, template_name = 'movieweb/index.html'):
