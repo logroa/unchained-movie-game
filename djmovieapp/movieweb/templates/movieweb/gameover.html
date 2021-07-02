@@ -1,0 +1,24 @@
+<html>
+    {% block body %}
+    <body>
+        {% if user.is_authenticated %}
+            <h1>Galoob's Movie Game</h1>
+
+            Sorry, {{ user.username }}, but {{ entity }} is incorrect.
+
+            This game's final score is {{ score }}.
+
+            <a href="../../../../">Play again?</a>
+
+            <a href="../../../../../">Main Menu</a>
+
+        {% else %}
+            <p>You are not logged in.</p>
+            <a href="{% url 'login' %}">Log In</a>
+    
+            <p>If you do not have an account.</p>
+            <a href="{% url 'signup' %}">Sign Up</a>
+        {% endif %}
+    </body>
+    {% endblock %}
+</html>
