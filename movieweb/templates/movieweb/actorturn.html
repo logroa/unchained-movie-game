@@ -10,7 +10,7 @@
 
         <h3>Now an actor that acts in {{ entity }}:</h3>
 
-        <form method="post">
+        <form method="post" autocomplete="off">
             {% csrf_token %}
             {{ form.as_p }}
             <button type="submit">Play</button>
