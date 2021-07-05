@@ -95,11 +95,7 @@ def movieAdd(request, movie):
     m.save()
 
 def roleHandle(request, actor, movie):
-    try:
-        rol = Role.objects.get(actor=actor, movie=movie)
-        rol.refRole()
-        rol.save()
-    except:
+    if not Role.objects.filter(actor=actor, movie=movie).exists():
         r = Role(actor=actor, movie=movie, discovered_by=request.user)
         r.save()
 
@@ -169,12 +165,12 @@ def getActor(request, actor, movie):
         return True
     except:
         if roleApi(actor, movie):
-            try:
+            if Actor.objects.filter(name = actor).exists:
                 act = Actor.objects.get(name = actor)
                 act.refAct()
                 act.save()
                 return True
-            except:
+            else:
                 actorAdd(request, actor)
                 return True
         else:
@@ -183,18 +179,18 @@ def getActor(request, actor, movie):
 #movie turn helper
 def getMovie(request, actor, movie):
     try:
-        rol = Role.objects.get(movie=Movie.objects.get(title = movie).id, actor = Actor.objects.get(name = actor).id)
+        rol = Role.objects.get(actor = Actor.objects.get(name = actor).id, movie=Movie.objects.get(title = movie).id)
         rol.refRole()
         rol.save()
         return True
     except:
         if roleApi(actor, movie):
-            try:
-                mov = Movie.objects.get(title = movie)
-                mov.refAct()
+            if Movie.objects.filter(title = movie).exists():
+                mov = Movie.objects.filter(title = movie)[0]
+                mov.refMov()
                 mov.save()
                 return True
-            except:
+            else:
                 movieAdd(request, movie)
                 return True
         else:
