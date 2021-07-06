@@ -22,7 +22,7 @@ from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
 
 import random
-import requests, json
+import requests, json, re
 from datetime import datetime
 
 
@@ -137,15 +137,19 @@ def roleApi(actor, movie):
     data = json.loads(response)
 
     for i in data["results"]:
-        if movie == i["title"].lower():
-            break
-    newLink = url + "movie/" + str(i["id"]) + "/credits?api_key=" + key + "&language=en-US"
-    newResponse = requests.get(newLink).text
-    newData = json.loads(newResponse)
+
+        if standardInput(movie) == standardInput(i["title"]):
             
-    for j in newData["cast"]:
-        if j["known_for_department"] == "Acting" and actor == j["name"].lower():
-            return True
+            newLink = url + "movie/" + str(i["id"]) + "/credits?api_key=" + key + "&language=en-US"
+            newResponse = requests.get(newLink).text
+            newData = json.loads(newResponse)
+            
+            for j in newData["cast"]:
+                if j["known_for_department"] == "Acting" and standardInput(actor) == standardInput(j["name"]):
+                    return True
+
+        break
+
     return False
 
 #check if entity has been played this game
@@ -156,22 +160,26 @@ def noRepeats(game_id, entity, movieOr):
     except:
         return True
 
+#input standardizer - removing spaces and punctuation
+def standardInput(entity):
+    return re.sub(r'[^\w]', '', entity).lower()
+
 #actor turn helper
 def getActor(request, actor, movie):
     try:
-        rol = Role.objects.get(actor = Actor.objects.get(name = actor).id, movie=Movie.objects.get(title = movie).id)
+        rol = Role.objects.get(actor = Actor.objects.get(name = standardInput(actor)).id, movie=Movie.objects.get(title = standardInput(movie)).id)
         rol.refRole()
         rol.save()
         return True
     except:
         if roleApi(actor, movie):
             try:
-                act = Actor.objects.get(name = actor)
+                act = Actor.objects.get(name = standardInput(actor))
                 act.refAct()
                 act.save()
                 return True
             except:
-                actorAdd(request, actor)
+                actorAdd(request, standardInput(actor))
                 return True
         else:
             return False
@@ -179,19 +187,19 @@ def getActor(request, actor, movie):
 #movie turn helper
 def getMovie(request, actor, movie):
     try:
-        rol = Role.objects.get(actor = Actor.objects.get(name = actor).id, movie=Movie.objects.get(title = movie).id)
+        rol = Role.objects.get(actor = Actor.objects.get(name = standardInput(actor)).id, movie=Movie.objects.get(title = standardInput(movie)).id)
         rol.refRole()
         rol.save()
         return True
     except:
         if roleApi(actor, movie):
-            if Movie.objects.filter(title = movie).exists():
-                mov = Movie.objects.filter(title = movie)[0]
+            if Movie.objects.filter(title = standardInput(movie)).exists():
+                mov = Movie.objects.filter(title = standardInput(movie))[0]
                 mov.refMov()
                 mov.save()
                 return True
             else:
-                movieAdd(request, movie)
+                movieAdd(request, standardInput(movie))
                 return True
         else:
             return False
@@ -199,13 +207,13 @@ def getMovie(request, actor, movie):
 #actor helper for beginning of the game
 def actorStart(request, actor):
     try:
-        act = Actor.objects.get(name=actor)
+        act = Actor.objects.get(name=standardInput(actor))
         act.refAct()
         act.save()
         return True
     except:
         if validateActor(actor):
-            actorAdd(request, actor)
+            actorAdd(request, standardInput(actor))
             return True
         else:
             return False
@@ -224,8 +232,8 @@ def actorTurn(request, game_id, entity, score, template_name= 'movieweb/actortur
                 score += 1
            
                 scoreBoarder(game_id)
-                turner(request, game_id, False, Actor.objects.get(name = name).id, False, False, score)
-                roleHandle(request, Actor.objects.get(name=name), Movie.objects.get(title=entity))
+                turner(request, game_id, False, Actor.objects.get(name = standardInput(name)).id, False, False, score)
+                roleHandle(request, Actor.objects.get(name=standardInput(name)), Movie.objects.get(title=standardInput(entity)))
 
                 return redirect("movieTurn", game_id = game_id, entity = name, score = score)
 
@@ -249,8 +257,8 @@ def movieTurn(request, game_id, entity, score, template_name = 'movieweb/movietu
                 score += 1
            
                 scoreBoarder(game_id)
-                turner(request, game_id, True, Movie.objects.get(title = title).id, False, False, score)
-                roleHandle(request, Actor.objects.get(name=entity), Movie.objects.get(title=title))
+                turner(request, game_id, True, Movie.objects.get(title = standardInput(title)).id, False, False, score)
+                roleHandle(request, Actor.objects.get(name=standardInput(entity)), Movie.objects.get(title=standardInput(title)))
 
                 return redirect("actorTurn", game_id = game_id, entity = title, score = score)
 
@@ -281,7 +289,7 @@ def GameStarter(request, template_name = 'movieweb/index.html'):
                 sb.incScore()
                 sb.save()
 
-                turner(request, sb.id, False, Actor.objects.get(name = name).id, True, False, 1)
+                turner(request, sb.id, False, Actor.objects.get(name = standardInput(name)).id, True, False, 1)
 
                 return redirect("movieTurn", game_id = sb.id, entity = name, score = score)
             
