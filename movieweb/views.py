@@ -170,6 +170,7 @@ def noRepeats(game_id, entity, movieOr):
 
 #input standardizer - removing spaces and punctuation
 def standardInput(entity):
+    entity = re.sub(r'[&]', 'and', entity)
     return re.sub(r'[^\w]', '', entity).lower()
 
 #actor turn helper
