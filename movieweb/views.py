@@ -165,12 +165,12 @@ def getActor(request, actor, movie):
         return True
     except:
         if roleApi(actor, movie):
-            if Actor.objects.filter(name = actor).exists:
+            try:
                 act = Actor.objects.get(name = actor)
                 act.refAct()
                 act.save()
                 return True
-            else:
+            except:
                 actorAdd(request, actor)
                 return True
         else:
