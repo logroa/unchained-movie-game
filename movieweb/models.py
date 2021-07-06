@@ -59,20 +59,10 @@ class Turn(models.Model):
     order = models.IntegerField(default = 1)
 
     def __str__(self):
-        ans = self.user.username + ": "
-        try:
-            m = Movie.objects.get(id = self.entity).title
-            a = Actor.objects.get(id = self.entity).name
-        except:
-            ans += "WRONG"
-            return ans
-        else:
-            if self.movie:
-                ans += m + " " + str(1)
-            else:
-                ans += a + " " + str(0)
-            ans += ", " + str(self.game_id) + ": " + str(self.order)
-            return ans
+        return [self.user.id, self.game_id, self.movie, self.entity, self.first, self.last, self.order]
+
+        
+            
 
 class playerRole(models.Model):
     user = models.ForeignKey(User, default=1, blank=True, null=True, on_delete=models.CASCADE)
