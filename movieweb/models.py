@@ -5,6 +5,7 @@ from datetime import datetime
 class Actor(models.Model):
     name = models.CharField(max_length=200)
     count = models.IntegerField(default = 1)
+    tmdbID = models.IntegerField(default = 1)
     discovered_by = models.ForeignKey(User, default=1, blank=True, null=True, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -16,6 +17,7 @@ class Actor(models.Model):
 class Movie(models.Model):
     title = models.CharField(max_length=200)
     count = models.IntegerField(default = 1)
+    tmdbID = models.IntegerField(default = 1)
     discovered_by = models.ForeignKey(User, default=1, blank=True, null=True, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -35,8 +37,6 @@ class Role(models.Model):
 
     def refRole(self):
         self.count += 1
-        self.actor.refAct()
-        self.movie.refMov()
 
 class Scoreboard(models.Model):
     user = models.ForeignKey(User, default=1, blank=True, null=True, on_delete=models.CASCADE)

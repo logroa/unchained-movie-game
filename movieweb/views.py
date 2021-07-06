@@ -86,12 +86,12 @@ def turner(request, game_id, movieOr, entity, first, last, order):
               entity = entity, first = first, last = last, order = order)
     tn.save()
 
-def actorAdd(request, actor):
-    a = Actor(name=actor, discovered_by=request.user)
+def actorAdd(request, actor, tmdbID):
+    a = Actor(name=actor, tmdbID = tmdbID, discovered_by=request.user)
     a.save()
 
-def movieAdd(request, movie):
-    m = Movie(title=movie, discovered_by=request.user)
+def movieAdd(request, movie, tmdbID):
+    m = Movie(title=movie, tmdbID = tmdbID, discovered_by=request.user)
     m.save()
 
 def roleHandle(request, actor, movie):
@@ -118,9 +118,12 @@ def validateActor(actor):
     data = json.loads(response)
 
     if data["total_results"] == 0:
-        return False
+        return (False, )
     else:
-        return True
+        for i in data["results"]:
+            if standardInput(actor) == standardInput(i['name']):
+                return (True, i['id'])
+        return (False, )
 
 #confirm movie and actor is in it
 def roleApi(actor, movie):
@@ -140,17 +143,19 @@ def roleApi(actor, movie):
 
         if standardInput(movie) == standardInput(i["title"]):
             
-            newLink = url + "movie/" + str(i["id"]) + "/credits?api_key=" + key + "&language=en-US"
+            movieTmdb = i["id"]
+            newLink = url + "movie/" + str(movieTmdb) + "/credits?api_key=" + key + "&language=en-US"
             newResponse = requests.get(newLink).text
             newData = json.loads(newResponse)
             
             for j in newData["cast"]:
                 if j["known_for_department"] == "Acting" and standardInput(actor) == standardInput(j["name"]):
-                    return True
+                    actorTmdb = validateActor(actor)[1]
+                    return (True, actorTmdb, movieTmdb)
 
         break
 
-    return False
+    return (False, )
 
 #check if entity has been played this game
 def noRepeats(game_id, entity, movieOr):
@@ -170,16 +175,22 @@ def getActor(request, actor, movie):
         rol = Role.objects.get(actor = Actor.objects.get(name = standardInput(actor)).id, movie=Movie.objects.get(title = standardInput(movie)).id)
         rol.refRole()
         rol.save()
+
+        act = Actor.objects.get(name = standardInput(actor))
+        act.refAct()
+        act.save()
+
         return True
     except:
-        if roleApi(actor, movie):
+        rol = roleApi(actor, movie)
+        if rol[0]:
             try:
                 act = Actor.objects.get(name = standardInput(actor))
                 act.refAct()
                 act.save()
                 return True
             except:
-                actorAdd(request, standardInput(actor))
+                actorAdd(request, standardInput(actor), rol[2])
                 return True
         else:
             return False
@@ -190,16 +201,22 @@ def getMovie(request, actor, movie):
         rol = Role.objects.get(actor = Actor.objects.get(name = standardInput(actor)).id, movie=Movie.objects.get(title = standardInput(movie)).id)
         rol.refRole()
         rol.save()
+  
+        mov = Movie.objects.get(title = standardInput(movie)).refMov()
+        mov.refMov()
+        mov.save()
+        
         return True
     except:
-        if roleApi(actor, movie):
+        rol = roleApi(actor, movie)
+        if rol[0]:
             if Movie.objects.filter(title = standardInput(movie)).exists():
                 mov = Movie.objects.filter(title = standardInput(movie))[0]
                 mov.refMov()
                 mov.save()
                 return True
             else:
-                movieAdd(request, standardInput(movie))
+                movieAdd(request, standardInput(movie), rol[2])
                 return True
         else:
             return False
@@ -212,8 +229,9 @@ def actorStart(request, actor):
         act.save()
         return True
     except:
-        if validateActor(actor):
-            actorAdd(request, standardInput(actor))
+        act = validateActor(actor)
+        if act[0]:
+            actorAdd(request, standardInput(actor), act[1])
             return True
         else:
             return False

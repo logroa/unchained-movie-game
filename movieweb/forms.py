@@ -14,16 +14,16 @@ class SignupForm(UserCreationForm):
 class ActorForm(forms.ModelForm):
     class Meta:
         model = Actor
-        exclude = ['count', 'discovered_by']
+        exclude = ['count', 'discovered_by', 'tmdbID']
 
 class MovieForm(forms.ModelForm):
     class Meta:
         model = Movie
-        exclude = ['count', 'discovered_by']
+        exclude = ['count', 'discovered_by', 'tmdbID']
 
 class RoleForm(forms.ModelForm):
     class Meta:
         model = Role
-        exclude = ['count', 'discovered_by']
+        exclude = ['count', 'discovered_by', 'tmdbID']
 
 
