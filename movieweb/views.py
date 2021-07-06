@@ -101,9 +101,10 @@ def roleHandle(request, actor, movie):
 
 #end of game page
 def gameOver(request, game_id, entity, score, template_name = 'movieweb/gameover.html'):
-    t = Turn.objects.get(game_id = game_id, order = score)
-    t.last = True
-    t.save()
+    if score > 0:
+        t = Turn.objects.get(game_id = game_id, order = score)
+        t.last = True
+        t.save()
     return render(request, template_name, {"entity": entity, "score": score, "game_id": game_id})
 
 #validate actor at beginning of game
