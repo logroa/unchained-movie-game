@@ -159,11 +159,10 @@ def roleApi(actor, movie):
 
 #check if entity has been played this game
 def noRepeats(game_id, entity, movieOr):
-    try:
-        used = Turn.objects.get(game_id = game_id, entity = entity, movie = movieOr)
+    if Turn.objects.filter(game_id = game_id, entity = entity, movie = movieOr).exists():
         return False
-    except:
-        return True
+    
+    return True
 
 #input standardizer - removing spaces and punctuation
 def standardInput(entity):
@@ -205,7 +204,7 @@ def getMovie(request, actor, movie):
         mov = Movie.objects.get(title = standardInput(movie)).refMov()
         mov.refMov()
         mov.save()
-        
+
         return True
     except:
         rol = roleApi(actor, movie)
@@ -246,7 +245,7 @@ def actorTurn(request, game_id, entity, score, template_name= 'movieweb/actortur
             name = form.cleaned_data['name'].lower()
             form = ActorForm()
 
-            if getActor(request, name, entity): #and noRepeats(game_id, Movie.objects.get(title = entity).id, True):
+            if getActor(request, name, entity) and noRepeats(game_id, Actor.objects.get(name = standardInput(name)).id, False):
                 score += 1
            
                 scoreBoarder(game_id)
@@ -271,7 +270,7 @@ def movieTurn(request, game_id, entity, score, template_name = 'movieweb/movietu
             title = form.cleaned_data['title'].lower()
             form = MovieForm()
 
-            if getMovie(request, entity, title): # and noRepeats(game_id, Actor.objects.get(name = entity).id, False):
+            if getMovie(request, entity, title) and noRepeats(game_id, Movie.objects.get(title = standardInput(title)).id, True):
                 score += 1
            
                 scoreBoarder(game_id)
