@@ -107,6 +107,28 @@ def gameOver(request, game_id, entity, score, template_name = 'movieweb/gameover
         t.save()
     return render(request, template_name, {"entity": entity, "score": score, "game_id": game_id})
 
+#get proper movie or actor name
+def properName(entity, movieOr):
+    key = "582466104084889c8affefe2494c9278"
+    token = '''eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1ODI0NjYxMD
+                        QwODQ4ODljOGFmZmVmZTI0OTRjOTI3OCIsInN1YiI6I
+                        jYwYjdmMWQ2NjkwNWZiMDA2ZjYyMDYyMSIsInNjb3Bl
+                        cyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.44pR
+                        dm5gZVVr5ZyJ9P8yPGdhtFEM79IeKGuwKYqNbDc'''
+    url = "https://api.themoviedb.org/3/"   
+
+    if movieOr:
+        link = url + "movie/" + str(entity) + "?api_key=" + key + "&language=en-US"
+        response = requests.get(link).text
+        data = json.loads(response)
+        return data["title"]
+    
+    else:
+        link = url + "person/" + str(entity) + "?api_key=" + key + "&language=en-US"
+        response = requests.get(link).text
+        data = json.loads(response)
+        return data["name"]
+
 #validate actor at beginning of game
 def validateActor(actor):
     key = "582466104084889c8affefe2494c9278"
@@ -194,7 +216,7 @@ def getActor(request, actor, movie):
                 act.save()
                 return True
             except:
-                actorAdd(request, standardInput(actor), rol[2])
+                actorAdd(request, standardInput(actor), rol[1])
                 return True
         else:
             return False
@@ -263,7 +285,9 @@ def actorTurn(request, game_id, entity, score, template_name= 'movieweb/actortur
                 return redirect("gameOver", game_id = game_id, entity = name, score = score)
     else:
         form = ActorForm()
-    return render(request, template_name, {'form': form, 'entity': entity, 'score': score, 'game_id': game_id})   
+        prev = Movie.objects.get(title = standardInput(entity)).tmdbID
+        ent = properName(prev, True)
+    return render(request, template_name, {'form': form, 'entity': ent, 'score': score, 'game_id': game_id})   
 
 #movie turn
 def movieTurn(request, game_id, entity, score, template_name = 'movieweb/movieturn.html'):
@@ -288,7 +312,9 @@ def movieTurn(request, game_id, entity, score, template_name = 'movieweb/movietu
                 return redirect("gameOver", game_id = game_id, entity = title, score = score)
     else:
         form = MovieForm()
-    return render(request, template_name, {'form': form, 'entity': entity, 'score': score, 'game_id': game_id})    
+        prev = Actor.objects.get(name = standardInput(entity)).tmdbID
+        ent = properName(prev, False)
+    return render(request, template_name, {'form': form, 'entity': ent, 'score': score, 'game_id': game_id})    
 
 #start the game w actor
 def GameStarter(request, template_name = 'movieweb/index.html'):
