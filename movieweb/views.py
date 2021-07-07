@@ -100,12 +100,12 @@ def roleHandle(request, actor, movie):
         r.save()
 
 #end of game page
-def gameOver(request, game_id, entity, score, template_name = 'movieweb/gameover.html'):
+def gameOver(request, game_id, entity, score, dd, template_name = 'movieweb/gameover.html'):
     if score > 0:
         t = Turn.objects.get(game_id = game_id, order = score)
         t.last = True
         t.save()
-    return render(request, template_name, {"entity": entity, "score": score, "game_id": game_id})
+    return render(request, template_name, {"entity": entity, "score": score, "game_id": game_id, "dd": dd})
 
 #get proper movie or actor name
 def properName(entity, movieOr):
@@ -271,8 +271,10 @@ def actorTurn(request, game_id, entity, score, template_name= 'movieweb/actortur
 
             name = form.cleaned_data['name'].lower()
             form = ActorForm()
+            
+            gA = getActor(request, name, entity) 
 
-            if getActor(request, name, entity) and noRepeats(game_id, Actor.objects.get(name = standardInput(name)).id, False):
+            if gA and noRepeats(game_id, Actor.objects.get(name = standardInput(name)).id, False):
                 score += 1
            
                 scoreBoarder(game_id)
@@ -282,7 +284,10 @@ def actorTurn(request, game_id, entity, score, template_name= 'movieweb/actortur
                 return redirect("movieTurn", game_id = game_id, entity = name, score = score)
 
             else:
-                return redirect("gameOver", game_id = game_id, entity = name, score = score)
+                dd = 1
+                if not gA:
+                    dd = 0
+                return redirect("gameOver", game_id = game_id, entity = name, score = score, dd = dd)
     else:
         form = ActorForm()
         prev = Movie.objects.get(title = standardInput(entity)).tmdbID
@@ -299,7 +304,9 @@ def movieTurn(request, game_id, entity, score, template_name = 'movieweb/movietu
             title = form.cleaned_data['title'].lower()
             form = MovieForm()
 
-            if getMovie(request, entity, title) and noRepeats(game_id, Movie.objects.get(title = standardInput(title)).id, True):
+            gM = getMovie(request, entity, title)
+
+            if gM and noRepeats(game_id, Movie.objects.get(title = standardInput(title)).id, True):
                 score += 1
            
                 scoreBoarder(game_id)
@@ -309,7 +316,10 @@ def movieTurn(request, game_id, entity, score, template_name = 'movieweb/movietu
                 return redirect("actorTurn", game_id = game_id, entity = title, score = score)
 
             else:
-                return redirect("gameOver", game_id = game_id, entity = title, score = score)
+                dd = 1
+                if not gM:
+                    dd = 0
+                return redirect("gameOver", game_id = game_id, entity = title, score = score, dd = dd)
     else:
         form = MovieForm()
         prev = Actor.objects.get(name = standardInput(entity)).tmdbID

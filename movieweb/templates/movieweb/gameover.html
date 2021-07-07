@@ -4,13 +4,23 @@
         {% if user.is_authenticated %}
             <h1>Galoob's Movie Game</h1>
 
-            Sorry, {{ user.username }}, but {{ entity }} is incorrect.
+            Sorry, {{ user.username }}, but {{ entity }}
+            
+            {% if dd == 1 %} 
+                
+                has already been played.  No double dipping!
+
+            {% else %}
+
+                is incorrect.
+
+            {% endif %}
 
             This game's final score is {{ score }}.
 
-            <a href="../../../../">Play again?</a>
+            <a href="../../../../../">Play again?</a>
 
-            <a href="../../../../../">Main Menu</a>
+            <a href="../../../../../../">Main Menu</a>
 
         {% else %}
             <p>You are not logged in.</p>
