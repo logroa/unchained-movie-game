@@ -94,18 +94,18 @@ def movieAdd(request, movie, tmdbID):
     m = Movie(title=movie, tmdbID = tmdbID, discovered_by=request.user)
     m.save()
 
-def roleHandle(request, actor, movie):
-    if not Role.objects.filter(actor=actor, movie=movie).exists():
-        r = Role(actor=actor, movie=movie, discovered_by=request.user)
+def roleAdd(request, tmdbIDa, tmdbIDm):
+    if not Role.objects.filter(actor=Actor.objects.get(tmdbID = tmdbIDa), movie=Movie.objects.get(tmdbID = tmdbIDm)).exists():
+        r = Role(actor=Actor.objects.get(tmdbID = tmdbIDa), movie=Movie.objects.get(tmdbID = tmdbIDm), discovered_by=request.user)
         r.save()
 
 #end of game page
-def gameOver(request, game_id, entity, score, dd, template_name = 'movieweb/gameover.html'):
+def gameOver(request, game_id, wrong, score, dd, template_name = 'movieweb/gameover.html'):
     if score > 0:
         t = Turn.objects.get(game_id = game_id, order = score)
         t.last = True
         t.save()
-    return render(request, template_name, {"entity": entity, "score": score, "game_id": game_id, "dd": dd})
+    return render(request, template_name, {"wrong": wrong, "score": score, "game_id": game_id, "dd": dd})
 
 #get proper movie or actor name
 def properName(entity, movieOr):
@@ -130,7 +130,7 @@ def properName(entity, movieOr):
         return data["name"]
 
 #validate actor at beginning of game
-def validateActor(actor):
+def validateActor(request, actor):
     key = "582466104084889c8affefe2494c9278"
     token = '''eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1ODI0NjYxMD
                         QwODQ4ODljOGFmZmVmZTI0OTRjOTI3OCIsInN1YiI6I
@@ -144,15 +144,16 @@ def validateActor(actor):
     data = json.loads(response)
 
     if data["total_results"] == 0:
-        return (False, )
+        return False
     else:
         for i in data["results"]:
             if standardInput(actor) == standardInput(i['name']):
-                return (True, i['id'])
-        return (False, )
+                actorAdd(request, standardInput(i["name"]), i["id"])
+                return True
+        return False
 
-#confirm movie and actor is in it
-def roleApi(actor, movie):
+#see if inputted movie is in actor's credits
+def actorCredits(request, actor, movie):
     key = "582466104084889c8affefe2494c9278"
     token = '''eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1ODI0NjYxMD
                         QwODQ4ODljOGFmZmVmZTI0OTRjOTI3OCIsInN1YiI6I
@@ -161,27 +162,35 @@ def roleApi(actor, movie):
                         dm5gZVVr5ZyJ9P8yPGdhtFEM79IeKGuwKYqNbDc'''
     url = "https://api.themoviedb.org/3/"
 
-    link = url + "search/movie?api_key=" + key + "&query=" + movie
+    link = url + "person/" + str(actor) + "/movie_credits?api_key=" + key + "&language=en-US"
     response = requests.get(link).text
-    data = json.loads(response)
+    data = json.loads(response)   
 
-    for i in data["results"]:
-
+    for i in data["cast"]:
         if standardInput(movie) == standardInput(i["title"]):
-            
-            movieTmdb = i["id"]
-            newLink = url + "movie/" + str(movieTmdb) + "/credits?api_key=" + key + "&language=en-US"
-            newResponse = requests.get(newLink).text
-            newData = json.loads(newResponse)
-            
-            for j in newData["cast"]:
-                if j["known_for_department"] == "Acting" and standardInput(actor) == standardInput(j["name"]):
-                    actorTmdb = validateActor(actor)[1]
-                    return (True, actorTmdb, movieTmdb)
+            movieAdd(request, standardInput(i["title"]), i["id"])
+            return True
+    return False
 
-        break
+#see if inputted actor is in the cast of the movie
+def movieCast(request, actor, movie):
+    key = "582466104084889c8affefe2494c9278"
+    token = '''eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1ODI0NjYxMD
+                        QwODQ4ODljOGFmZmVmZTI0OTRjOTI3OCIsInN1YiI6I
+                        jYwYjdmMWQ2NjkwNWZiMDA2ZjYyMDYyMSIsInNjb3Bl
+                        cyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.44pR
+                        dm5gZVVr5ZyJ9P8yPGdhtFEM79IeKGuwKYqNbDc'''
+    url = "https://api.themoviedb.org/3/"
 
-    return (False, )
+    newLink = url + "movie/" + str(movie) + "/credits?api_key=" + key + "&language=en-US"
+    newResponse = requests.get(newLink).text
+    newData = json.loads(newResponse)
+
+    for i in newData["cast"]:
+        if i["known_for_department"] == "Acting" and standardInput(actor) == standardInput(i["name"]):
+            actorAdd(request, standardInput(i["name"]), i["id"])
+            return True
+    return False
 
 #check if entity has been played this game
 def noRepeats(game_id, entity, movieOr):
@@ -198,54 +207,32 @@ def standardInput(entity):
 #actor turn helper
 def getActor(request, actor, movie):
     try:
-        rol = Role.objects.get(actor = Actor.objects.get(name = standardInput(actor)).id, movie=Movie.objects.get(title = standardInput(movie)).id)
+        rol = Role.objects.get(actor = Actor.objects.get(name = standardInput(actor)).name, movie=Movie.objects.get(tmdb = movie).title)
         rol.refRole()
         rol.save()
-
-        act = Actor.objects.get(name = standardInput(actor))
+  
+        act = Actor.objects.get(name = standardInput(name))
         act.refAct()
         act.save()
 
         return True
     except:
-        rol = roleApi(actor, movie)
-        if rol[0]:
-            try:
-                act = Actor.objects.get(name = standardInput(actor))
-                act.refAct()
-                act.save()
-                return True
-            except:
-                actorAdd(request, standardInput(actor), rol[1])
-                return True
-        else:
-            return False
+        return movieCast(request, actor, movie)
 
 #movie turn helper
 def getMovie(request, actor, movie):
     try:
-        rol = Role.objects.get(actor = Actor.objects.get(name = standardInput(actor)).id, movie=Movie.objects.get(title = standardInput(movie)).id)
+        rol = Role.objects.get(actor = Actor.objects.get(tmdbID = actor).name, movie=Movie.objects.get(title = standardInput(movie)).title)
         rol.refRole()
         rol.save()
   
-        mov = Movie.objects.get(title = standardInput(movie)).refMov()
+        mov = Movie.objects.get(title = standardInput(movie))
         mov.refMov()
         mov.save()
 
         return True
     except:
-        rol = roleApi(actor, movie)
-        if rol[0]:
-            if Movie.objects.filter(title = standardInput(movie)).exists():
-                mov = Movie.objects.filter(title = standardInput(movie))[0]
-                mov.refMov()
-                mov.save()
-                return True
-            else:
-                movieAdd(request, standardInput(movie), rol[2])
-                return True
-        else:
-            return False
+        return actorCredits(request, actor, movie)
 
 #actor helper for beginning of the game
 def actorStart(request, actor):
@@ -255,12 +242,7 @@ def actorStart(request, actor):
         act.save()
         return True
     except:
-        act = validateActor(actor)
-        if act[0]:
-            actorAdd(request, standardInput(actor), act[1])
-            return True
-        else:
-            return False
+        return validateActor(request, actor)
 
 #actor turn
 def actorTurn(request, game_id, entity, score, template_name= 'movieweb/actorturn.html'):
@@ -279,18 +261,18 @@ def actorTurn(request, game_id, entity, score, template_name= 'movieweb/actortur
            
                 scoreBoarder(game_id)
                 turner(request, game_id, False, Actor.objects.get(name = standardInput(name)).id, False, False, score)
-                roleHandle(request, Actor.objects.get(name=standardInput(name)), Movie.objects.get(title=standardInput(entity)))
+                roleAdd(request, Actor.objects.get(name=standardInput(name)).tmdbID, entity)
 
-                return redirect("movieTurn", game_id = game_id, entity = name, score = score)
+                return redirect("movieTurn", game_id = game_id, entity = Actor.objects.get(name=standardInput(name)).tmdbID, score = score)
 
             else:
                 dd = 1
                 if not gA:
                     dd = 0
-                return redirect("gameOver", game_id = game_id, entity = name, score = score, dd = dd)
+                return redirect("gameOver", game_id = game_id, wrong = name, score = score, dd = dd)
     else:
         form = ActorForm()
-        prev = Movie.objects.get(title = standardInput(entity)).tmdbID
+        prev = entity
         ent = properName(prev, True)
     return render(request, template_name, {'form': form, 'entity': ent, 'score': score, 'game_id': game_id})   
 
@@ -311,18 +293,18 @@ def movieTurn(request, game_id, entity, score, template_name = 'movieweb/movietu
            
                 scoreBoarder(game_id)
                 turner(request, game_id, True, Movie.objects.get(title = standardInput(title)).id, False, False, score)
-                roleHandle(request, Actor.objects.get(name=standardInput(entity)), Movie.objects.get(title=standardInput(title)))
+                roleAdd(request, entity, Movie.objects.get(title=standardInput(title)).tmdbID)
 
-                return redirect("actorTurn", game_id = game_id, entity = title, score = score)
+                return redirect("actorTurn", game_id = game_id, entity = Movie.objects.get(title=standardInput(title)).tmdbID, score = score)
 
             else:
                 dd = 1
                 if not gM:
                     dd = 0
-                return redirect("gameOver", game_id = game_id, entity = title, score = score, dd = dd)
+                return redirect("gameOver", game_id = game_id, wrong = title, score = score, dd = dd)
     else:
         form = MovieForm()
-        prev = Actor.objects.get(name = standardInput(entity)).tmdbID
+        prev = entity
         ent = properName(prev, False)
     return render(request, template_name, {'form': form, 'entity': ent, 'score': score, 'game_id': game_id})    
 
@@ -349,12 +331,10 @@ def GameStarter(request, template_name = 'movieweb/index.html'):
 
                 turner(request, sb.id, False, Actor.objects.get(name = standardInput(name)).id, True, False, 1)
 
-                return redirect("movieTurn", game_id = sb.id, entity = name, score = score)
+                return redirect("movieTurn", game_id = sb.id, entity = Actor.objects.get(name = standardInput(name)).tmdbID, score = score)
             
             else:
-                return redirect("gameOver", game_id = sb.id, entity = name, score = 0)
-
-        #args = {'form': form, 'name': name, 'actor': act, 'score': score}
+                return redirect("gameOver", game_id = sb.id, wrong = name, score = 0, dd = 0)
     
     else:
         form = ActorForm()

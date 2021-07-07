@@ -59,7 +59,7 @@ class Turn(models.Model):
     order = models.IntegerField(default = 1)
 
     def __str__(self):
-        return [self.user.id, self.game_id, self.movie, self.entity, self.first, self.last, self.order]
+        return str([self.user.id, self.game_id, self.movie, self.entity, self.first, self.last, self.order])
 
         
             
