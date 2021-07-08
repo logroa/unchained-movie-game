@@ -168,7 +168,8 @@ def actorCredits(request, actor, movie):
 
     for i in data["cast"]:
         if standardInput(movie) == standardInput(i["title"]):
-            movieAdd(request, standardInput(i["title"]), i["id"])
+            if not Movie.objects.filter(title = standardInput(movie)).exists():
+                movieAdd(request, standardInput(i["title"]), i["id"])
             return True
     return False
 
@@ -188,7 +189,8 @@ def movieCast(request, actor, movie):
 
     for i in newData["cast"]:
         if i["known_for_department"] == "Acting" and standardInput(actor) == standardInput(i["name"]):
-            actorAdd(request, standardInput(i["name"]), i["id"])
+            if not Actor.objects.filter(name = standardInput(actor)).exists():
+                actorAdd(request, standardInput(i["name"]), i["id"])
             return True
     return False
 
@@ -207,11 +209,11 @@ def standardInput(entity):
 #actor turn helper
 def getActor(request, actor, movie):
     try:
-        rol = Role.objects.get(actor = Actor.objects.get(name = standardInput(actor)).name, movie=Movie.objects.get(tmdb = movie).title)
+        rol = Role.objects.get(actor = Actor.objects.get(name = standardInput(actor)).id, movie=Movie.objects.get(tmdbID = movie).id)
         rol.refRole()
         rol.save()
   
-        act = Actor.objects.get(name = standardInput(name))
+        act = Actor.objects.get(name = standardInput(actor))
         act.refAct()
         act.save()
 
@@ -222,7 +224,7 @@ def getActor(request, actor, movie):
 #movie turn helper
 def getMovie(request, actor, movie):
     try:
-        rol = Role.objects.get(actor = Actor.objects.get(tmdbID = actor).name, movie=Movie.objects.get(title = standardInput(movie)).title)
+        rol = Role.objects.get(actor = Actor.objects.get(tmdbID = actor).id, movie=Movie.objects.get(title = standardInput(movie)).id)
         rol.refRole()
         rol.save()
   
