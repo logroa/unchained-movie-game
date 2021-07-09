@@ -21,6 +21,8 @@ from .tokens import account_activation_token
 from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
 
+from difflib import SequenceMatcher
+
 import random
 import requests, json, re
 from datetime import datetime
@@ -95,9 +97,12 @@ def movieAdd(request, movie, tmdbID):
     m.save()
 
 def roleAdd(request, tmdbIDa, tmdbIDm):
-    if not Role.objects.filter(actor=Actor.objects.get(tmdbID = tmdbIDa), movie=Movie.objects.get(tmdbID = tmdbIDm)).exists():
+    if Role.objects.filter(actor=Actor.objects.get(tmdbID = tmdbIDa), movie=Movie.objects.get(tmdbID = tmdbIDm)).exists():
+        r = Role.objects.get(actor=Actor.objects.get(tmdbID = tmdbIDa), movie=Movie.objects.get(tmdbID = tmdbIDm))
+        r.refRole()
+    else:
         r = Role(actor=Actor.objects.get(tmdbID = tmdbIDa), movie=Movie.objects.get(tmdbID = tmdbIDm), discovered_by=request.user)
-        r.save()
+    r.save()
 
 #end of game page
 def gameOver(request, game_id, wrong, score, dd, template_name = 'movieweb/gameover.html'):
@@ -106,6 +111,15 @@ def gameOver(request, game_id, wrong, score, dd, template_name = 'movieweb/gameo
         t.last = True
         t.save()
     return render(request, template_name, {"wrong": wrong, "score": score, "game_id": game_id, "dd": dd})
+
+#attempt at identifying minorly misspelled names and titles
+#this uses difflib SequenceMatcher
+#other solutions in the future could include
+#   Hamming Distance: distance between two strings of EQUAL LENGTH (prob not for that reason)
+#   Levenshtein Distance: minimum # of single character edits to get from one word to the other (could work, but I don't like lack of proportionality)
+#   Jaro-Winkler: similar to hamming but same length but gives more similarity to beginning w same characters (I like this; could be helpful solving article adj issue)
+def misspellCorrect(misspell, right):
+    return SequenceMatcher(None, misspell, right).ratio()
 
 #get proper movie or actor name
 def properName(entity, movieOr):
@@ -143,14 +157,29 @@ def validateActor(request, actor):
     response = requests.get(link).text
     data = json.loads(response)
 
-    if data["total_results"] == 0:
-        return False
-    else:
-        for i in data["results"]:
-            if standardInput(actor) == standardInput(i['name']):
-                actorAdd(request, standardInput(i["name"]), i["id"])
-                return True
-        return False
+    maxSim = 0.0
+    maxSimWord = ""
+    for i in data["results"]:
+        if standardInput(actor) == standardInput(i['name']):
+            actorAdd(request, standardInput(i["name"]), i["id"])
+            return i["id"]
+
+    possibleGuys = Actor.objects.filter(name__startswith = standardInput(actor)[0])
+    for i in possibleGuys:        
+        sim = misspellCorrect(standardInput(actor), i.name)
+        if sim > maxSim:
+            maxSim = sim
+            maxSimWord = i
+            if maxSim == 1.0:
+                break
+
+    if maxSim >= .85:
+        act = Actor.objects.get(tmdbID = maxSimWord.tmdbID)
+        act.refAct()
+        act.save()
+        return maxSimWord.tmdbID
+
+    return -1
 
 #see if inputted movie is in actor's credits
 def actorCredits(request, actor, movie):
@@ -166,12 +195,25 @@ def actorCredits(request, actor, movie):
     response = requests.get(link).text
     data = json.loads(response)   
 
+    maxSim = 0
+    maxSimWord = ""
     for i in data["cast"]:
-        if standardInput(movie) == standardInput(i["title"]):
-            if not Movie.objects.filter(title = standardInput(movie)).exists():
-                movieAdd(request, standardInput(i["title"]), i["id"])
-            return True
-    return False
+        sim = misspellCorrect(standardInput(movie), standardInput(i["title"]))
+        if sim > maxSim:
+            maxSim = sim
+            maxSimWord = i
+            if maxSim == 1.0:
+                break
+
+    if maxSim >= .85:
+        if Movie.objects.filter(title = standardInput(maxSimWord["title"])).exists():
+            mov = Movie.objects.get(tmdbID = maxSimWord["id"])
+            mov.refMov()
+            mov.save()
+        else:
+            movieAdd(request, standardInput(maxSimWord["title"]), maxSimWord["id"])
+        return maxSimWord["id"]
+    return -1
 
 #see if inputted actor is in the cast of the movie
 def movieCast(request, actor, movie):
@@ -187,12 +229,25 @@ def movieCast(request, actor, movie):
     newResponse = requests.get(newLink).text
     newData = json.loads(newResponse)
 
+    maxSim = 0
+    maxSimWord = ""
     for i in newData["cast"]:
-        if i["known_for_department"] == "Acting" and standardInput(actor) == standardInput(i["name"]):
-            if not Actor.objects.filter(name = standardInput(actor)).exists():
-                actorAdd(request, standardInput(i["name"]), i["id"])
-            return True
-    return False
+        sim = misspellCorrect(standardInput(actor), standardInput(i["name"]))
+        if i["known_for_department"] == "Acting" and sim > maxSim:
+            maxSim = sim
+            maxSimWord = i
+            if maxSim == 1.0:
+                break
+
+    if maxSim >= .85:
+        if Actor.objects.filter(name = standardInput(maxSimWord["name"])).exists():
+            act = Actor.objects.get(tmdbID = maxSimWord["id"])
+            act.refAct()
+            act.save()
+        else:
+            actorAdd(request, standardInput(maxSimWord["name"]), maxSimWord["id"])
+        return maxSimWord["id"]
+    return -1
 
 #check if entity has been played this game
 def noRepeats(game_id, entity, movieOr):
@@ -217,7 +272,7 @@ def getActor(request, actor, movie):
         act.refAct()
         act.save()
 
-        return True
+        return act.tmdbID
     except:
         return movieCast(request, actor, movie)
 
@@ -232,7 +287,7 @@ def getMovie(request, actor, movie):
         mov.refMov()
         mov.save()
 
-        return True
+        return mov.tmdbID
     except:
         return actorCredits(request, actor, movie)
 
@@ -242,7 +297,7 @@ def actorStart(request, actor):
         act = Actor.objects.get(name=standardInput(actor))
         act.refAct()
         act.save()
-        return True
+        return act.tmdbID
     except:
         return validateActor(request, actor)
 
@@ -258,18 +313,18 @@ def actorTurn(request, game_id, entity, score, template_name= 'movieweb/actortur
             
             gA = getActor(request, name, entity) 
 
-            if gA and noRepeats(game_id, Actor.objects.get(name = standardInput(name)).id, False):
+            if gA > 0 and noRepeats(game_id, Actor.objects.get(tmdbID = gA).id, False):
                 score += 1
            
                 scoreBoarder(game_id)
-                turner(request, game_id, False, Actor.objects.get(name = standardInput(name)).id, False, False, score)
-                roleAdd(request, Actor.objects.get(name=standardInput(name)).tmdbID, entity)
+                turner(request, game_id, False, Actor.objects.get(tmdbID = gA).id, False, False, score)
+                roleAdd(request, gA, entity)
 
-                return redirect("movieTurn", game_id = game_id, entity = Actor.objects.get(name=standardInput(name)).tmdbID, score = score)
+                return redirect("movieTurn", game_id = game_id, entity = gA, score = score)
 
             else:
                 dd = 1
-                if not gA:
+                if gA < 0:
                     dd = 0
                 return redirect("gameOver", game_id = game_id, wrong = name, score = score, dd = dd)
     else:
@@ -290,18 +345,18 @@ def movieTurn(request, game_id, entity, score, template_name = 'movieweb/movietu
 
             gM = getMovie(request, entity, title)
 
-            if gM and noRepeats(game_id, Movie.objects.get(title = standardInput(title)).id, True):
+            if gM > 0 and noRepeats(game_id, Movie.objects.get(tmdbID = gM).id, True):
                 score += 1
            
                 scoreBoarder(game_id)
-                turner(request, game_id, True, Movie.objects.get(title = standardInput(title)).id, False, False, score)
-                roleAdd(request, entity, Movie.objects.get(title=standardInput(title)).tmdbID)
+                turner(request, game_id, True, Movie.objects.get(tmdbID = gM).id, False, False, score)
+                roleAdd(request, entity, gM)
 
-                return redirect("actorTurn", game_id = game_id, entity = Movie.objects.get(title=standardInput(title)).tmdbID, score = score)
+                return redirect("actorTurn", game_id = game_id, entity = gM, score = score)
 
             else:
                 dd = 1
-                if not gM:
+                if gM < 0:
                     dd = 0
                 return redirect("gameOver", game_id = game_id, wrong = title, score = score, dd = dd)
     else:
@@ -325,15 +380,16 @@ def GameStarter(request, template_name = 'movieweb/index.html'):
             name = form.cleaned_data['name'].lower()
             form = ActorForm()
 
-            if actorStart(request, name):
+            aS = actorStart(request, name)
+            if aS > 0:
                 score += 1
 
                 sb.incScore()
                 sb.save()
 
-                turner(request, sb.id, False, Actor.objects.get(name = standardInput(name)).id, True, False, 1)
+                turner(request, sb.id, False, Actor.objects.get(tmdbID = aS).id, True, False, 1)
 
-                return redirect("movieTurn", game_id = sb.id, entity = Actor.objects.get(name = standardInput(name)).tmdbID, score = score)
+                return redirect("movieTurn", game_id = sb.id, entity = aS, score = score)
             
             else:
                 return redirect("gameOver", game_id = sb.id, wrong = name, score = 0, dd = 0)
