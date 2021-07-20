@@ -2,6 +2,11 @@ from django.db import models
 from django.contrib.auth.models import User
 from datetime import datetime
 
+from django.db.models import Max
+
+from django.dispatch import receiver
+from django.db.models.signals import post_save
+
 class Actor(models.Model):
     name = models.CharField(max_length=200)
     count = models.IntegerField(default = 1)
@@ -61,16 +66,43 @@ class Turn(models.Model):
     def __str__(self):
         return str([self.user.id, self.game_id, self.movie, self.entity, self.first, self.last, self.order])
 
-        
-            
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    highscore = models.OneToOneField(Scoreboard, on_delete=models.PROTECT, null=True)
 
-class playerRole(models.Model):
-    user = models.ForeignKey(User, default=1, blank=True, null=True, on_delete=models.CASCADE)
-    role_id = models.IntegerField(default = 0)
-    count = models.IntegerField(default = 1)
+    #favMov = models.ForeignKey(Movie, related_name="playersFM", on_delete=models.PROTECT)
+    #favAct = models.ForeignKey(Actor, related_name="playersFA", on_delete=models.PROTECT)
+
+    #favStart = models.ForeignKey(Turn, related_name="playersFS", on_delete=models.PROTECT)
+    #alwaysEndMov = models.ForeignKey(Turn, related_name="playersEM", on_delete=models.PROTECT)
+    #alwaysEndAct = models.ForeignKey(Turn, related_name="playersEA", on_delete=models.PROTECT)
+
+    #actsDisc = models.ManyToManyField(Actor)
+    #movsDisc = models.ManyToManyField(Movie)
+    #rolsDisc = models.ManyToManyField(Role)
 
     def __str__(self):
-        return self.user.username + ": " + Role.objects.get(id = self.role_id) + ", " + str(self.count)
+        return self.user.username + "'s profile page"
 
-    def refConnect(self):
-        self.count += 1
+    #connect our function to User's post_save signal
+    #when User is saved, these functions are called
+    #...what else could i do with this???
+    @receiver(post_save, sender=User)
+    def create_user_profile(sender, instance, created, **kwargs):
+        if created:
+            Profile.objects.create(user=instance)
+    
+    @receiver(post_save, sender=User)
+    def save_user_profile(sender, instance, **kwargs):
+        
+        try:
+            scores = Scoreboard.objects.filter(user = instance)
+            best = scores[0]
+            for i in scores:
+                if i.score > best.score:
+                    best = i
+
+            instance.profile.highscore = best
+            instance.profile.save()
+        except:
+            instance.profile.save()

@@ -79,8 +79,8 @@ WSGI_APPLICATION = 'djmovieapp.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'movdb',
-        'USER': 'movdbuser',
+        'NAME': 'galoobdb',
+        'USER': 'logan',
         'PASSWORD': '123',
         'HOST': 'localhost',
         'PORT': '',

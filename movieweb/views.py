@@ -2,7 +2,7 @@
 from django.http import HttpResponseRedirect, Http404
 from django.views.generic.edit import FormView, View, DeleteView
 from .forms import ActorForm, MovieForm, RoleForm
-from .models import Actor, Movie, Role, Scoreboard, Turn, playerRole
+from .models import Actor, Movie, Role, Scoreboard, Turn, Profile
 
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
@@ -71,6 +71,11 @@ def activate(request, uidb64, token):
     else:
         return HttpResponse('Activation link is invalid!')
 
+#render user profile
+def userProfile(request, template_name="movieweb/profile.html"):
+    prof = Profile.objects.get(user = request.user)
+    return render(request, template_name, {"highscore": prof.highscore})
+
 #misc
 def randMov():
    firstmovies = Movie.objects.raw("SELECT id, title from movieweb_movie ORDER BY count DESC LIMIT 5")
@@ -97,15 +102,14 @@ def movieAdd(request, movie, tmdbID):
     m.save()
 
 def roleAdd(request, tmdbIDa, tmdbIDm):
-    if Role.objects.filter(actor=Actor.objects.get(tmdbID = tmdbIDa), movie=Movie.objects.get(tmdbID = tmdbIDm)).exists():
-        r = Role.objects.get(actor=Actor.objects.get(tmdbID = tmdbIDa), movie=Movie.objects.get(tmdbID = tmdbIDm))
-        r.refRole()
-    else:
+    if not Role.objects.filter(actor=Actor.objects.get(tmdbID = tmdbIDa), movie=Movie.objects.get(tmdbID = tmdbIDm)).exists():
         r = Role(actor=Actor.objects.get(tmdbID = tmdbIDa), movie=Movie.objects.get(tmdbID = tmdbIDm), discovered_by=request.user)
-    r.save()
+        r.save()
 
 #end of game page
 def gameOver(request, game_id, wrong, score, dd, template_name = 'movieweb/gameover.html'):
+    user = request.user
+    user.save()
     if score > 0:
         t = Turn.objects.get(game_id = game_id, order = score)
         t.last = True
