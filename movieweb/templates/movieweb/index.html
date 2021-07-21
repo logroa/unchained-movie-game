@@ -1,7 +1,8 @@
+{% extends "base.html" %}
 {% load crispy_forms_tags %}
-<html>
-    {% block body %}
-    <body>
+
+{% block content %}
+
     {% if user.is_authenticated %}
         <h1>Galoob's Movie Game</h1>
         {{ user.username }}
@@ -24,6 +25,4 @@
         <p>If you do not have an account.</p>
         <a href="{% url 'signup' %}">Sign Up</a>
     {% endif %}
-    </body>
-    {% endblock %}
-</html>
+{% endblock %}

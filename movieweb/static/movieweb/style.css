@@ -1,0 +1,8 @@
+.word a {
+    text-decoration: none;
+}
+
+body {
+    background-image: url("appbackground.jpg");
+    background-size:cover;
+}
