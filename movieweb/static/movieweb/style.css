@@ -1,3 +1,13 @@
+@font-face {
+    font-family: 'GreadyF';
+    src: url("Gready_PERSONAL_USE_ONLY-Regular.otf");
+}
+
+@font-face {
+    font-family: 'Cocogoose';
+    src: url("Cocogoose Pro Light-trial.ttf")
+}
+
 .word a {
     text-decoration: none;
 }
@@ -12,4 +22,16 @@ body {
     background: linear-gradient(0deg, rgba(34,193,195,0.8679621506805848) 17%, rgba(90,45,253,1) 98%);
     background-size: auto;
     background-repeat: no-repeat;
+}
+
+#title {
+    font-family: GreadyF;
+}
+
+.headlink {
+    color: white;
+}
+
+#usertr {
+    font-family: Cocogoose;
 }
