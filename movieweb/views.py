@@ -256,8 +256,9 @@ def movieCast(request, actor, movie):
 #check if entity has been played this game
 def noRepeats(game_id, entity, movieOr):
     if Turn.objects.filter(game_id = game_id, entity = entity, movie = movieOr).exists():
+        if not movieOr and Actor.objects.get(id = entity).name == "kevinbacon":
+            return True
         return False
-    
     return True
 
 #input standardizer - removing spaces and punctuation

@@ -2,7 +2,14 @@
     text-decoration: none;
 }
 
+html, body {
+    margin: 0;
+    height: 100%;
+}
+
 body {
-    background-image: url("appbackground.jpg");
-    background-size:cover;
+    background: rgb(34,193,195);
+    background: linear-gradient(0deg, rgba(34,193,195,0.8679621506805848) 17%, rgba(90,45,253,1) 98%);
+    background-size: auto;
+    background-repeat: no-repeat;
 }
