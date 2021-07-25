@@ -5,7 +5,7 @@
     <head>
         <meta charset="utf-8">
         <link rel="stylesheet" type="text/css" href="{% static 'movieweb/style.css' %}">
-        <title>{% block title %}Movie Web Game{% endblock %}</title>
+        <title>{% block title %}Galoobigami{% endblock %}</title>
     </head>
     <body>
         <div class="wrapper">
@@ -17,21 +17,30 @@
                     </div>
                     {% block nav_user %}
                     <div id="usertr" class="navbar-right word">
-                        {% if user.is_authenticated %}
-                            <a class="headlink" href="{% url 'userProfile' %}">
-                                <h1>{{ user.username }}</h1>
-                            </a>
-                        {% else %}
-                            <a class="headlink" href="{% url 'login' %}">
-                                <h1>Log In</h1>
-                            </a>
-                        {% endif %}
+                        <div class="unbox">
+                            {% if user.is_authenticated %}
+                                <a class="headlink" href="{% url 'userProfile' %}">
+                                    <h3>{{ user.username }}</h3>
+                                </a>
+                            {% else %}
+                                <a class="headlink" href="{% url 'login' %}">
+                                    <h3>Log In</h3>
+                                </a>
+                            {% endif %}
+                        </div>
                     </div>
                     {% endblock %}
                 </div>
             </div>
-            {% block content %}
-            {% endblock %}
+
+            <br/>
+            <br/>
+            <br/>
+
+            <div class="sitecontent">
+                {% block content %}
+                {% endblock %}
+            </div>
         </div>       
     </body>
 </html>

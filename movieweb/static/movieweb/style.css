@@ -4,8 +4,38 @@
 }
 
 @font-face {
-    font-family: 'Cocogoose';
+    font-family: 'CocogooseLight';
     src: url("Cocogoose Pro Light-trial.ttf")
+}
+
+@font-face {
+    font-family: 'CocogooseSemilight';
+    src: url("Cocogoose Pro Semilight-trial.ttf")
+}
+
+@font-face {
+    font-family: 'Cocogoose';
+    src: url("Cocogoose Pro-trial.ttf")
+}
+
+@font-face {
+    font-family: 'Cream';
+    src: url("cream-DEMO.ttf")
+}
+
+@font-face {
+    font-family: 'TomBold';
+    src: url("MADE TOMMY Bold_PERSONAL USE.otf")
+}
+
+@font-face {
+    font-family: 'TomMed';
+    src: url("MADE TOMMY Medium_PERSONAL USE.otf")
+}
+
+@font-face {
+    font-family: 'TomReg';
+    src: url("MADE TOMMY Regular_PERSONAL USE.otf")
 }
 
 .word a {
@@ -15,6 +45,8 @@
 html, body {
     margin: 0;
     height: 100%;
+    padding: 20px;
+    padding-top: 10px;
 }
 
 body {
@@ -25,7 +57,7 @@ body {
 }
 
 #title {
-    font-family: GreadyF;
+    font-family: TomBold;
 }
 
 .headlink {
@@ -33,5 +65,41 @@ body {
 }
 
 #usertr {
-    font-family: Cocogoose;
+    font-family: TomMed;
+    margin-right: 0;
+    margin-left: auto;
+}
+
+.unbox {
+    border-radius: 3px;
+    padding-left: 25px;
+    padding-right: 25px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    transition: .5s ease-in-out;
+}
+
+.unbox:hover {
+    background: rgba(255, 255, 255, .5);
+    transition: .5s ease-in-out;
+}
+
+.container {
+    width: 100%;
+    display: flex;
+}
+
+.word {
+    display:inline-block;
+}
+
+.sitecontent {
+    font-family: TomReg;
+    color: white;
+    width: 80%;
+    margin: 0 auto;
+}
+
+#proftop {
+    display: flex;
 }
