@@ -4,18 +4,43 @@
 
 {% block content %}
 {% if user.is_authenticated %}
-    Hi {{ user.username }}
+    <div class="mainmenubox">
+        <h2>How often do you say "Hey, that's the guy from _________!" while
+            actually doing the Rick Dalton meme?
+        </h2>
+        <br/><br/>
+        <a href="/movieweb/" id="pglink">
+            <div id="pgbox">Play Game</div>
+        </a>
+    </div>
 
-    <a href="/movieweb/">Play Game</a>
-    
-    <a href="{% url 'logout' %}">Log Out</a>
-
-    <a href="/movieweb/user/">{{user.username}}</a>
 {% else %}
-    <p>You are not logged in.</p>
-    <a href="{% url 'login' %}">Log In</a>
+    <div class="mainmenubox">
+        <h4>
+            Okay, this game is all about the webbed relationship between actors and the movies they act in.  The 
+            better you know your favorite movies, their casts, and the other movies those actors have appeared in,
+            the better you'll do!  How it works is you start with an actor, Morgan Freeman for example, then name 
+            a movie he has acted in.  Let's go with cult-classic and Oscar-sweeping "Evan Almighty" which opens the
+            door to Steve Carell, who was also in that movie.  From Steve Carell, "The 40 Year-Old Virgin" would be
+            a great option, as tons of well known actors such as Seth Rogen, Paul Rudd, Leslie Mann, and Jane Lynch
+            are now playable.
+        </h4>
+        <br />
+        <h4>
+            Inspired by the Six Degrees of Kevin Bacon, this Beat-The-Streak style game is fun to play with friends or on your own!  More game-modes, features,
+            and insights based on how you play the game are coming soon!
+        </h4>
+         <br /><br />
+        <div id="lisu">
+            <a href="{% url 'login' %}" id="lilink">
+                <div id="libox">Log In</div>
+            </a>
 
-    <p>If you do not have an account.</p>
-    <a href="{% url 'signup' %}">Sign Up</a>
+            <a href="{% url 'signup' %}" id="sulink">
+                <div id="subox">Sign Up</div>
+            </a>
+        </div>
+    </div>
+
 {% endif %}
 {% endblock %}

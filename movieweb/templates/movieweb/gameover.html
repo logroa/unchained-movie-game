@@ -2,13 +2,13 @@
 
     {% block content %}
         {% if user.is_authenticated %}
-            <h1>Galoob's Movie Game</h1>
+            <h1>Sorry, {{ user.username }}</h1>
 
-            Sorry, {{ user.username }}, but {{ wrong }}
+            but {{ wrong }}
             
             {% if dd == 1 %} 
                 
-                has already been played.  No double dipping!
+                has already been played.  Only one actor or movie can be double dipped in this game.
 
             {% else %}
 
@@ -16,11 +16,19 @@
 
             {% endif %}
 
-            This game's final score is {{ score }}.
+            This game's final score is <h2>{{ score }}</h2>
 
-            <a href="../../../../../">Play again?</a>
+            <br /><br />
 
-            <a href="../../../../../../">Main Menu</a>
+            <div id="gooptions">
+                <a href="/movieweb/" id="pglink">
+                    <div id="pgbox">Play Game</div>
+                </a>
+
+                <a href="/" id="mmlink">
+                    <div id="mmbox">Main Menu</div>
+                </a>
+            </div>
 
         {% else %}
             <p>You are not logged in.</p>

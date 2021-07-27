@@ -5,15 +5,18 @@
    
     {% if user.is_authenticated %}
 
-        <h3>Score: {{ score }}</h3>
+        <div class="mainmenubox">
+            <h3>Now a movie that {{ entity }} has acted in:</h3>
 
-        <h3>Now a movie that {{ entity }} has acted in:</h3>
-
-        <form method="post" autocomplete="off">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Play</button>
-        </form>
+            <form method="post" autocomplete="off">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" id="playbutton">Play</button>
+            </form>
+            
+            <br /><br />
+            <h1>{{ score }}</h1>
+        </div>
 
     {% else %}
         <p>You are not logged in.</p>

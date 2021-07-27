@@ -8,12 +8,19 @@
                     <h2>{{user.username}}</h2>
                     <h4>{{user.email}}</h4>
                 </div>
-                <div id="right">
+                <div id="right" class="profbox">
+                    <br/>
                     highscore <br/>
                     <h2>{{highscore.score|default_if_none:"N/A"}}</h2>
                 </div>
             </div>
-            
+
+            <br /><br />
+            <div id="profbot">
+                <a href="{% url 'logout' %}" id="lolink">
+                    <div id="lobox">Log Out</div>
+                </a>     
+            </div>      
 
         {% else %}
             <p>You are not logged in.</p>

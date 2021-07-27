@@ -42,11 +42,21 @@
     text-decoration: none;
 }
 
+a {
+    text-decoration: none;
+}
+
 html, body {
     margin: 0;
     height: 100%;
+    overflow: hidden;
+}
+
+.navbar {
+    background-color: rgba(0, 71, 171, 1);
     padding: 20px;
     padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 body {
@@ -54,6 +64,10 @@ body {
     background: linear-gradient(0deg, rgba(34,193,195,0.8679621506805848) 17%, rgba(90,45,253,1) 98%);
     background-size: auto;
     background-repeat: no-repeat;
+}
+
+.wrapper {
+    height: 100%;
 }
 
 #title {
@@ -97,9 +111,259 @@ body {
     font-family: TomReg;
     color: white;
     width: 80%;
+    height: 100%;
     margin: 0 auto;
 }
 
 #proftop {
     display: flex;
+    width: 80%;
+    margin: 0 auto;
+}
+
+#right {
+    margin-right: 0;
+    margin-left: auto;  
+    display: inline-block;
+    text-align: center;
+}
+
+#profbot {
+    width: 80%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+#lolink {
+    color: #fa8072;
+}
+
+#lobox {
+    border-radius: 3px;
+    padding-left: 25px;
+    padding-right: 25px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    transition: .5s ease-in-out;
+
+    margin-right: 0;
+    margin-left: auto;
+    display: inline-block;
+    text-align: center;
+}
+
+#lobox:hover {
+    background: rgba(250, 128, 114, .5);
+    color: white;
+    transition: .5s ease-in-out;
+}
+
+.mainmenubox {
+    text-align: center;
+}
+
+.mainmenubox h4 {
+    text-align: center;
+}
+
+#pglink {
+    color: white;
+}
+
+#pgbox {
+    border-radius: 3px;
+    padding-left: 25px;
+    padding-right: 25px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    transition: .5s ease-in-out;
+
+    margin-right: 0;
+    margin-left: auto;
+    display: inline-block;
+    text-align: center;
+
+    background: rgba(113, 238, 184, .5);
+}
+
+#pgbox:hover {
+    background:  rgba(113, 238, 184, 1);
+    transition: .5s ease-in-out;
+}
+
+#lisu {
+    height: 80%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#lilink {
+    color: white;
+    margin: 20px;
+}
+
+#libox {
+    border-radius: 3px;
+    padding-left: 25px;
+    padding-right: 25px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    transition: .5s ease-in-out;
+
+    margin-right: 0;
+    margin-left: auto;
+    display: inline-block;
+    text-align: center;
+
+    background: rgba(255, 234, 0, .5);
+}
+
+#libox:hover {
+    background:  rgba(255, 234, 0, 1);
+    transition: .5s ease-in-out;
+}
+
+#sulink {
+    color: white;
+    margin: 20px;
+}
+
+#subox {
+    border-radius: 3px;
+    padding-left: 25px;
+    padding-right: 25px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    transition: .5s ease-in-out;
+
+    margin-right: 0;
+    margin-left: auto;
+    display: inline-block;
+    text-align: center;
+
+    background: rgba(255, 165, 0, .5);
+}
+
+#subox:hover {
+    background:  rgba(255, 165, 0, 1);
+    transition: .5s ease-in-out;
+}
+
+#libutton {
+    border-radius: 3px;
+    padding-left: 25px;
+    padding-right: 25px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+
+    background: rgba(255, 234, 0, .5);
+    outline: none;
+    border: none;
+    color: white;
+    font-family: TomReg;
+    transition: .5s ease-in-out;
+}
+
+#libutton:hover {
+    cursor: pointer;
+    background:  rgba(255, 234, 0, 1);
+
+    transition: .5s ease-in-out;
+
+}
+
+input {
+    width: 50%;
+    background: rgba(255, 255, 255, .4);
+    border-radius: 2px;
+    padding: 8px;
+    outline: none;
+    border: none;
+    font-family: TomReg;
+    color: grey;
+    
+}
+
+input:focus {
+    background: rgba(255, 255, 255, .8);
+}
+
+#subutton {
+    border-radius: 3px;
+    padding-left: 25px;
+    padding-right: 25px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+
+    background: rgba(255, 165, 0, .5);
+    outline: none;
+    border: none;
+    color: white;
+    font-family: TomReg;
+    transition: .5s ease-in-out;
+}
+
+#subutton:hover {
+    cursor: pointer;
+    background: rgba(255, 165, 0, 1);
+
+    transition: .5s ease-in-out;
+
+}
+
+
+#playbutton {
+    border-radius: 3px;
+    padding-left: 25px;
+    padding-right: 25px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+
+    background: rgba(113, 238, 184, .5);
+    outline: none;
+    border: none;
+    color: white;
+    font-family: TomReg;
+    transition: .5s ease-in-out;
+}
+
+#playbutton:hover {
+    cursor: pointer;
+    background: rgba(113, 238, 184, 1);
+
+    transition: .5s ease-in-out;
+
+}
+
+#gooptions {
+    display: flex;
+    
+}
+
+#mmlink {
+    color: white;
+    margin-left: 30px;
+}
+
+#mmbox {
+    border-radius: 3px;
+    padding-left: 25px;
+    padding-right: 25px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    transition: .5s ease-in-out;
+
+    margin-right: 0;
+    margin-left: auto;
+    display: inline-block;
+    text-align: center;
+
+    background: rgba(123, 175, 212, .5);
+}
+
+#mmbox:hover {
+    background:  rgba(123, 175, 212, 1);
+    transition: .5s ease-in-out;
 }
