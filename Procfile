@@ -1,0 +1,1 @@
+web: gunicorn3 djmovieapp.wsgi

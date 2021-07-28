@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
+import django_heroku
 
 from pathlib import Path
 import os
@@ -123,7 +124,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
 
 # Default primary key field type
@@ -142,3 +143,6 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'rosebudironman@gmail.com'
 EMAIL_HOST_PASSWORD = 'Casciahall85$'
 EMAIL_PORT = 587
+
+# Activate Django-Heroku.
+django_heroku.settings(locals())
