@@ -38,18 +38,23 @@ def signup(request):
             user.save()
             current_site = get_current_site(request)
             mail_subject = 'Activate your Movie Account.'
+            uidG = urlsafe_base64_encode(force_bytes(user.pk))
+            tok = account_activation_token.make_token(user)
             message = render_to_string('acc_active_email.html', {
                 'user': user,
                 'domain': current_site.domain,
-                'uid':urlsafe_base64_encode(force_bytes(user.pk)),
-                'token':account_activation_token.make_token(user),
+                'uid':uidG,
+                'token':tok,
             })
             to_email = form.cleaned_data.get('email')
             email = EmailMessage(
                         mail_subject, message, to=[to_email]
             )
-            email.send()
-            return HttpResponse('Please confirm your email address to complete the registration')
+            try: 
+                email.send()
+                return HttpResponse('Please confirm your email address to complete the registration')
+            except:
+                return activate(request, uidG, tok)
     else:
         form = SignupForm()
     return render(request, 'signup.html', {'form': form})
@@ -67,7 +72,7 @@ def activate(request, uidb64, token):
         # return redirect('home')
         context = {'uidb64':uidb64, 'token': token}
         #return render(request, 'acc_active_email.html', context)
-        return HttpResponse('Thank you for your email confirmation. Now you can login to your account.')
+        return HttpResponse('Email confirmed. Now you can login to your account.')
     else:
         return HttpResponse('Activation link is invalid!')
 
