@@ -12,4 +12,5 @@ urlpatterns = [
     path('<int:game_id>/<str:wrong>/<int:score>/<int:dd>/gameover/', views.gameOver, name='gameOver'),
     path('<int:game_id>/m/<int:entity>/<int:score>/', views.actorTurn, name='actorTurn'),
     path('user/', views.userProfile, name='userProfile'),
+    path('highscoreboard/', views.highScoreboard, name="highScoreboard"),
 ]

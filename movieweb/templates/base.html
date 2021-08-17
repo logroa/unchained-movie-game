@@ -16,6 +16,13 @@
                     <div id="title" class="navbar-header word">
                         <a id="titlelink" class="headlink" href="/"><h1>Galoobigami</h1></a>
                     </div>
+
+                    <div>
+                        <a class="headlink" href="{% url 'highScoreboard' %}">
+                            <h3>Highscores</h3>
+                        </a>
+                    </div>
+
                     {% block nav_user %}
                     <div id="usertr" class="navbar-right word">
                         <div class="unbox">
