@@ -83,7 +83,10 @@ def userProfile(request, template_name="movieweb/profile.html"):
 
 #render top ten highscores
 def highScoreboard(request, template_name="movieweb/highscoreboard.html"):
-    scores = Scoreboard.objects.order_by('-score', 'date')[:10]
+    scores1 = Scoreboard.objects.order_by('-score', 'date')[:10]
+    scores = {
+        "scores": scores1
+    }
     return render(request, template_name, scores)
 
 #misc
