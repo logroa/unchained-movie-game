@@ -89,6 +89,28 @@ def highScoreboard(request, template_name="movieweb/highscoreboard.html"):
     }
     return render(request, template_name, scores)
 
+def scoreboardGameLog(request, game_id, template_name="movieweb/scoreboardGameLog.html"):
+    played = Turn.objects.filter(game_id=game_id)
+    entities = {
+        "entities": []
+    }       
+
+    for i in played:
+        if i.movie:
+            ent = Movie.objects.get(id = i).tmdbID
+
+        else:
+            ent = Actor.objects.get(id = i).tmdbID
+        
+        entity = properName(ent, i.movie)
+        entities.entities.append(entity)
+
+    return render(request, template_name, entities)
+
+
+
+
+
 #misc
 def randMov():
    firstmovies = Movie.objects.raw("SELECT id, title from movieweb_movie ORDER BY count DESC LIMIT 5")

@@ -5,8 +5,8 @@
         {% if user.is_authenticated %}
     
             <ol>
-                {% for score in scores %}
-                    <li><a href="/{% score.id %}">{{ score.user.username }} </a> {{score.score}}</li>
+                {% for entity in entities.entities %}
+                    <li>{{ entity }}</li>
                 {% endfor %}
             </ol>
 
