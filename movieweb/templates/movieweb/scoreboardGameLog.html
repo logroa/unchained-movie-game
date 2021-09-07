@@ -3,7 +3,7 @@
     {% block content %}
 
         {% if user.is_authenticated %}
-            <h1>{{ user.username }}</h1>
+            <h1>{{ username }} {{ score }}</h1>
             <div id="scorelog">
                 <ol>
                     {% for entity in played %}

@@ -92,7 +92,9 @@ def highScoreboard(request, template_name="movieweb/highscoreboard.html"):
 def scoreboardGameLog(request, game_id, template_name="movieweb/scoreboardGameLog.html"):
     played = Turn.objects.filter(game_id=game_id)
     turns = []    
-
+    sb = Scoreboard.objects.get(id = game_id)
+    user = sb.user
+    score = sb.score
     for i in played:
         if i.movie:
             ent = Movie.objects.get(id = i.entity).tmdbID
@@ -104,7 +106,9 @@ def scoreboardGameLog(request, game_id, template_name="movieweb/scoreboardGameLo
         turns.append(entity)
 
     entities = {
-        "played": turns
+        "played": turns,
+        "username": user.username,
+        "score": score
     }
 
     return render(request, template_name, entities)
