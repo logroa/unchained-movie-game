@@ -6,7 +6,7 @@
     
             <ol>
                 {% for score in scores %}
-                    <li><a href="/{{ score.id }}">{{ score.user.username }} </a> {{score.score}}</li>
+                    <li><a class="whitelink" href="/movieweb/highscoreboard/{{ score.id }}">{{ score.user.username }} </a> {{score.score}}</li>
                 {% endfor %}
             </ol>
 

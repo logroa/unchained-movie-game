@@ -392,3 +392,8 @@ input:focus {
     background:  rgba(123, 175, 212, 1);
     transition: .5s ease-in-out;
 }
+
+.whitelink {
+    text-decoration: none;
+    color: white;
+}
