@@ -397,3 +397,7 @@ input:focus {
     text-decoration: none;
     color: white;
 }
+
+#scorelog {
+    overflow: scroll;
+}

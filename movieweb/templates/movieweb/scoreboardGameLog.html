@@ -3,12 +3,14 @@
     {% block content %}
 
         {% if user.is_authenticated %}
-    
-            <ol>
-                {% for entity in played %}
-                    <li>{{ entity }}</li>
-                {% endfor %}
-            </ol>
+            <h1>user.username</h1>
+            <div id="scorelog">
+                <ol>
+                    {% for entity in played %}
+                        <li>{{ entity }}</li>
+                    {% endfor %}
+                </ol>
+            </div>
 
         {% else %}
             <p>You are not logged in.</p>
