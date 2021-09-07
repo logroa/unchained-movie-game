@@ -97,10 +97,10 @@ def scoreboardGameLog(request, game_id, template_name="movieweb/scoreboardGameLo
 
     for i in played:
         if i.movie:
-            ent = Movie.objects.get(id = i).tmdbID
+            ent = Movie.objects.get(id = i.entity).tmdbID
 
         else:
-            ent = Actor.objects.get(id = i).tmdbID
+            ent = Actor.objects.get(id = i.entity).tmdbID
         
         entity = properName(ent, i.movie)
         entities.entities.append(entity)
