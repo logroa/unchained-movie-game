@@ -103,7 +103,7 @@ def scoreboardGameLog(request, game_id, template_name="movieweb/scoreboardGameLo
             ent = Actor.objects.get(id = i.entity).tmdbID
         
         entity = properName(ent, i.movie)
-        entities.entities.append(entity)
+        entities["entities"].append(entity)
 
     return render(request, template_name, entities)
 
