@@ -6,7 +6,7 @@
     
             <ol>
                 {% for score in scores %}
-                    <li><a href="/{% score.id %}">{{ score.user.username }} </a> {{score.score}}</li>
+                    <li><a href="/{{ score.id }}">{{ score.user.username }} </a> {{score.score}}</li>
                 {% endfor %}
             </ol>
 
