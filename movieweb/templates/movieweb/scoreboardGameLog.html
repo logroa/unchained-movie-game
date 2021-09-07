@@ -5,7 +5,7 @@
         {% if user.is_authenticated %}
     
             <ol>
-                {% for entity in entities.entities %}
+                {% for entity in entities %}
                     <li>{{ entity }}</li>
                 {% endfor %}
             </ol>
