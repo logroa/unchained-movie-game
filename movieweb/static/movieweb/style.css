@@ -399,5 +399,6 @@ input:focus {
 }
 
 #scorelog {
+    height: 50%;
     overflow: scroll;
 }
