@@ -136,7 +136,7 @@ body {
 }
 
 #lolink {
-    color: #fa8072;
+    color: while;
 }
 
 #lobox {
@@ -151,10 +151,12 @@ body {
     margin-left: auto;
     display: inline-block;
     text-align: center;
+    
+    background: rgba(250, 128, 114, .5)
 }
 
 #lobox:hover {
-    background: rgba(250, 128, 114, .5);
+    background: rgba(250, 128, 114, 1);
     color: white;
     transition: .5s ease-in-out;
 }
