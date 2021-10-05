@@ -121,6 +121,13 @@ body {
     margin: 0 auto;
 }
 
+#profstats {
+    display: flex;
+    width: 80%;
+    margin: 0 auto;
+    justify-content: space-between;
+}
+
 #right {
     margin-right: 0;
     margin-left: auto;  

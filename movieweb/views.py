@@ -79,7 +79,7 @@ def activate(request, uidb64, token):
 #render user profile
 def userProfile(request, template_name="movieweb/profile.html"):
     prof = Profile.objects.get(user = request.user)
-    return render(request, template_name, {"highscore": prof.highscore, "favAct": prof.favAct, "favMov": prof.favMov, "favStart": prof.favStart})
+    return render(request, template_name, {"highscore": prof.highscore, "favAct": properName(prof.favAct.tmdbID, False), "favMov": properName(prof.favMov.tmdbID, True), "favStart": properName(prof.favStart, False)})
 
 #render top ten highscores
 def highScoreboard(request, template_name="movieweb/highscoreboard.html"):
