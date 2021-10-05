@@ -117,7 +117,7 @@ class Profile(models.Model):
                     movies[i.entity] = 1
             max_movie_id = max(movies, key = lambda x: movies[x])
             max_movie = Movie.objects.get(id = max_movie_id)
-            instance.profile.favMov = max_movie.title
+            instance.profile.favMov = max_movie
             instance.profile.save()
         except:
             instance.profile.save()
@@ -132,7 +132,7 @@ class Profile(models.Model):
                     actors[i.entity] = 1
             max_actor_id = max(movies, key = lambda x: actors[x])
             max_actor = Actor.objects.get(id = max_actor_id)
-            instance.profile.favAct = max_actor.name
+            instance.profile.favAct = max_actor
             instance.profile.save()
         except:
             instance.profile.save()
@@ -147,7 +147,7 @@ class Profile(models.Model):
                     actors[i.entity] = 1
             max_actor_id = max(movies, key = lambda x: actors[x])
             max_actor = Actor.objects.get(id = max_actor_id)
-            instance.profile.favStart = max_actor.name
+            instance.profile.favStart = max_actor
             instance.profile.save()
         except:
             instance.profile.save()
