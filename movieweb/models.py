@@ -73,7 +73,7 @@ class Profile(models.Model):
     favMov = models.ForeignKey(Movie, related_name="playersFM", on_delete=models.CASCADE, null=True)
     favAct = models.ForeignKey(Actor, related_name="playersFA", on_delete=models.CASCADE, null=True)
 
-    favStart = models.ForeignKey(Turn, related_name="playersFS", on_delete=models.CASCADE, null=True)
+    favStart = models.ForeignKey(Actor, related_name="playersFS", on_delete=models.CASCADE, null=True)
     #alwaysEndMov = models.ForeignKey(Turn, related_name="playersEM", on_delete=models.PROTECT)
     #alwaysEndAct = models.ForeignKey(Turn, related_name="playersEA", on_delete=models.PROTECT)
 
@@ -122,7 +122,7 @@ class Profile(models.Model):
                     actors[i.entity] += 1
                 else:
                     actors[i.entity] = 1
-            max_actor_id = max(movies, key = lambda x: actors[x])
+            max_actor_id = max(actors, key = lambda x: actors[x])
             max_actor = Actor.objects.get(id = max_actor_id)
             instance.profile.favAct = max_actor
 
@@ -133,7 +133,7 @@ class Profile(models.Model):
                     actors[i.entity] += 1
                 else:
                     actors[i.entity] = 1
-            max_actor_id = max(movies, key = lambda x: actors[x])
+            max_actor_id = max(actors, key = lambda x: actors[x])
             max_actor = Actor.objects.get(id = max_actor_id)
             instance.profile.favStart = max_actor
             instance.profile.save()
