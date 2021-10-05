@@ -70,10 +70,10 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     highscore = models.OneToOneField(Scoreboard, on_delete=models.PROTECT, null=True)
 
-    #favMov = models.ForeignKey(Movie, related_name="playersFM", on_delete=models.PROTECT)
-    #favAct = models.ForeignKey(Actor, related_name="playersFA", on_delete=models.PROTECT)
+    favMov = models.ForeignKey(Movie, related_name="playersFM", on_delete=models.CASCADE, null=True)
+    favAct = models.ForeignKey(Actor, related_name="playersFA", on_delete=models.CASCADE, null=True)
 
-    #favStart = models.ForeignKey(Turn, related_name="playersFS", on_delete=models.PROTECT)
+    favStart = models.ForeignKey(Turn, related_name="playersFS", on_delete=models.CASCADE, null=True)
     #alwaysEndMov = models.ForeignKey(Turn, related_name="playersEM", on_delete=models.PROTECT)
     #alwaysEndAct = models.ForeignKey(Turn, related_name="playersEA", on_delete=models.PROTECT)
 
@@ -103,6 +103,51 @@ class Profile(models.Model):
                     best = i
 
             instance.profile.highscore = best
+            instance.profile.save()
+        except:
+            instance.profile.save()
+        
+        try:
+            movies_played = Turn.objects.filter(user=instance).filter(movie=True)
+            movies = {}
+            for i in movies_played:
+                if i.entity in movies:
+                    movies[i.entity] += 1
+                else:
+                    movies[i.entity] = 1
+            max_movie_id = max(movies, key = lambda x: movies[x])
+            max_movie = Movie.objects.get(id = max_movie_id)
+            instance.profile.favMov = max_movie.title
+            instance.profile.save()
+        except:
+            instance.profile.save()
+        
+        try:
+            actors_played = Turn.objects.filter(user=instance).filter(movie=False)
+            actors = {}
+            for i in actors_played:
+                if i.entity in actors:
+                    actors[i.entity] += 1
+                else:
+                    actors[i.entity] = 1
+            max_actor_id = max(movies, key = lambda x: actors[x])
+            max_actor = Actor.objects.get(id = max_actor_id)
+            instance.profile.favAct = max_actor.name
+            instance.profile.save()
+        except:
+            instance.profile.save()
+        
+        try:
+            actors_played = Turn.objects.filter(user=instance).filter(first=True)
+            actors = {}
+            for i in actors_played:
+                if i.entity in actors:
+                    actors[i.entity] += 1
+                else:
+                    actors[i.entity] = 1
+            max_actor_id = max(movies, key = lambda x: actors[x])
+            max_actor = Actor.objects.get(id = max_actor_id)
+            instance.profile.favStart = max_actor.name
             instance.profile.save()
         except:
             instance.profile.save()
