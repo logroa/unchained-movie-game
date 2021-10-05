@@ -103,7 +103,6 @@ class Profile(models.Model):
                     best = i
 
             instance.profile.highscore = best
-            instance.profile.save()
 
             movies_played = Turn.objects.filter(user=instance).filter(movie=True)
             movies = {}
@@ -115,7 +114,6 @@ class Profile(models.Model):
             max_movie_id = max(movies, key = lambda x: movies[x])
             max_movie = Movie.objects.get(id = max_movie_id)
             instance.profile.favMov = max_movie
-            instance.profile.save()
 
             actors_played = Turn.objects.filter(user=instance).filter(movie=False)
             actors = {}
@@ -127,7 +125,6 @@ class Profile(models.Model):
             max_actor_id = max(movies, key = lambda x: actors[x])
             max_actor = Actor.objects.get(id = max_actor_id)
             instance.profile.favAct = max_actor
-            instance.profile.save()
 
             actors_played = Turn.objects.filter(user=instance).filter(first=True)
             actors = {}
