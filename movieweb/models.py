@@ -6,6 +6,7 @@ from django.db.models import Max
 
 from django.dispatch import receiver
 from django.db.models.signals import post_save
+from django.utils.timezone import now
 
 class Actor(models.Model):
     name = models.CharField(max_length=200)
@@ -46,7 +47,7 @@ class Role(models.Model):
 class Scoreboard(models.Model):
     user = models.ForeignKey(User, default=1, blank=True, null=True, on_delete=models.CASCADE)
     score = models.IntegerField(default = 0)
-    date = models.DateTimeField(default=datetime.now(), blank=True, null=True)
+    date = models.DateTimeField(default=now, blank=True, null=True)
 
     def __str__(self):
         return self.user.username + ": " + str(self.score) + ", " + str(self.date)

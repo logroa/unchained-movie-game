@@ -13,10 +13,18 @@ import django_heroku
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+DB_USER = os.getenv('DB_USER')
+DB_PW = os.getenv('DB_PW') 
+DB_PORT = os.getenv('DB_PORT')
+DB_NAME = os.getenv('DB_NAME')
+DB_URL = os.getenv('DB_URL')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
@@ -80,11 +88,11 @@ WSGI_APPLICATION = 'djmovieapp.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'galoobdb',
-        'USER': 'logan',
-        'PASSWORD': '123',
-        'HOST': 'localhost',
-        'PORT': '',
+        'NAME': DB_NAME,
+        'USER': DB_USER,
+        'PASSWORD': DB_PW,
+        'HOST': DB_URL,
+        'PORT': DB_PORT,
     }
 }
 
