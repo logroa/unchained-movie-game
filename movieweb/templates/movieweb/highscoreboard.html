@@ -3,7 +3,7 @@
     {% block content %}
 
         {% if user.is_authenticated %}
-    
+            <h3>Highscores - click on any to see what was played</h3>
             <ol>
                 {% for score in scores %}
                     <li><a class="whitelink" href="/movieweb/highscoreboard/{{ score.id }}">{{ score.user.username }} </a> {{score.score}}</li>
